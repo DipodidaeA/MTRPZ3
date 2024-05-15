@@ -1,11 +1,19 @@
-FROM golang:1.17
+FROM golang:1.17 AS stage1
 
-WORKDIR /app
+WORKDIR /app1
 
-COPY go.mod /app
+COPY go.mod /app1
 
 RUN go mod download
 
-COPY . /app
+COPY . /app1
 
-CMD ["go run","main.go"]
+RUN go build -o main .
+
+FROM scratch
+
+WORKDIR /app2
+
+COPY --from=stage1 /app1/main /app2
+
+CMD ["main"]
